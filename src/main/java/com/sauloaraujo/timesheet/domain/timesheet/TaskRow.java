@@ -10,6 +10,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class TaskRow {
-	private Task task;
+	private Task task; // task.id e task.name
 	private List<EntryCell> entryCells; 	
 }

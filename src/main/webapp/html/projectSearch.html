@@ -1,0 +1,49 @@
+<div class="row">
+    <div class="col-sm-12">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control"
+                           ng-model="resource.options.name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control"
+                           ng-model="resource.options.description">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">
+                    Tasks
+                </label>
+                <div class="col-sm-10">
+                    <div class="panel panel-default checkboxes-panel">
+                        <div class="panel-body">
+                            <div class="checkbox" ng-repeat="task in tasks">
+                                <label>
+                                    <input type="checkbox"> {{task.name}}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <div class="well">
+                        <button type="button" class="btn btn-primary" ng-click="search()">Search</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{projects}}
+
+oii
+
+{{tasks}}

@@ -37,13 +37,12 @@ public class TimesheetConfigurableMapper extends ConfigurableMapper {
 		for (Converter<?, ?> converter : converters.values()) {
 			factory.getConverterFactory().registerConverter(converter);
 		}
-		
 		factory.classMap(ProjectRow.class, ProjectRowDto.class)
 			.field("project.id", "id")
 			.field("project.name", "project")
-			.byDefault()
+			.byDefault()   // os demais atributos, usar a estratégia padrão
 		.register();
-		
+
 		factory.classMap(TaskRow.class, TaskRowDto.class)
 			.field("task.id", "id")
 			.field("task.name", "task")

@@ -18,7 +18,7 @@
         <link rel="stylesheet" href="bower_components/angular-loading-bar/build/loading-bar.min.css"/>
         <script src="bower_components/angular-loading-bar/build/loading-bar.min.js"></script>
 
-        <script src="bower_components/angular-i18n/angular-locale_en-us.js"></script>
+        <script src="bower_components/angular-i18n/angular-locale_pt-br.js"></script>
         <script src="bower_components/angular-input-masks/angular-input-masks-standalone.min.js"></script>
         <script src="bower_components/angular-local-storage/dist/angular-local-storage.min.js"></script>
         <script src="bower_components/angular-route/angular-route.min.js"></script>
@@ -37,88 +37,39 @@
         <script src="bower_components/stomp-websocket/lib/stomp.min.js"></script>
         <script src="bower_components/uri.js/src/URI.min.js"></script>
 
-        <link rel="stylesheet" href="css/timesheet.css"/>
         <script src="js/timesheetModule.js"></script>
-        <script src="js/alert.js"></script>
-        <script src="js/authentication.js"></script>
-        <script src="js/bootstrap.js"></script>
-        <script src="js/error.js"></script>
-        <script src="js/hateoas.js"></script>
-        <script src="js/projectFormController.js"></script>
-        <script src="js/projectSearchResultController.js"></script>
-        <script src="js/projectSearchOptionsFormController.js"></script>
+       <script src="js/timesheetController.js"></script>
+        <script src="js/apiClient.js"></script>
+       <script src="js/hateoasA.js"></script>
+       <script src="js/hateoasHref.js"></script>
+        <script src="js/projectSearchController.js"></script>
+        <script src="js/searchBox.js"></script>
         <script src="js/rootController.js"></script>
-        <script src="js/timesheetController.js"></script>
+
+        <style>
+            .timesheet {
+                table-layout: fixed;
+            }
+            .timesheet > tbody > tr > td,
+            .timesheet > thead > tr > th  {
+                text-align: center;
+                vertical-align: middle;
+                background-color: white;
+            }
+            .timesheet input {
+                border: none;
+                text-align: center;
+                width: 100%
+            }
+        </style>
     </head>
     <body>
-        <nav class="navbar navbar-inverse navbar-static-top">
-            <div class="container">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#/">Timesheet</a>
-                </div>
-                <authenticated>
-                    <ul class="nav navbar-nav" ng-controller="rootController">
-                        <li class="dropdown">
-                            <a href="#" data-toggle="dropdown" ng-click="$event.preventDefault()">
-                                Project <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li ng-show="resource.$has('newProjectForm')">
-                                    <a href="{{resource.$href('newProjectForm') | hateoasHref}}">New</a>
-                                </li>
-                                <li ng-show="resource.$has('projectSearchOptionsForm')">
-                                    <a href="{{resource.$href('projectSearchOptionsForm') | hateoasHref}}">Search</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li ng-show="resource.$has('timesheet')">
-                            <a href="{{resource.$href('timesheet') | hateoasHref}}">Timesheet</a>
-                        </li>
-                    </ul>
-                </authenticated>
-            </div>
-        </nav>
+
+        <ng-include src="'html/menu.html'"></ng-include>
+
         <div class="container">
-            <non-authenticated>
-                <div class="container" ng-controller="authenticationController">
-                    <div class="row" ng-show="hasAuthenticationFailed()">
-                        <div class="col-sm-12">
-                            <div class="alert alert-danger">
-                                Authentication has failed
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <form class="form-horizontal" ng-submit="authenticate(username, password)">
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label">Username</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" class="form-control" ng-model="username">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label">Password</label>
-                                    <div class="col-sm-10">
-                                        <input type="password" class="form-control" ng-model="password">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-10">
-                                        <div class="well">
-                                            <button type="submit" class="btn btn-primary">Sign in</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </non-authenticated>
-            <authenticated>
-                <bootstrap-alerts></bootstrap-alerts>
-                <ng-view></ng-view>
-            </authenticated>
+            <ng-view></ng-view>
         </div>
+        <a href="http://localhost:8080/">Aqui</a>
     </body>
 </html>

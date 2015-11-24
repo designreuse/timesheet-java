@@ -1,0 +1,10 @@
+<span ng-hide="searching">{{label}}</span>
+<a href="" ng-hide="searching" ng-click="show()">
+        <i class="glyphicon glyphicon-search"></i>
+</a>
+</span>
+
+<input type="text" ng-show="searching" ng-model="modelo">
+<a href="" ng-show="searching" ng-click="hide()">
+    <i class="glyphicon glyphicon-remove"></i>
+</a>

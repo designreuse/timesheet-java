@@ -1,73 +1,67 @@
-<table class="table table-bordered timesheet" style="z-index: 1" sticky>
+<h1>Timen sheeten</h1>
+<canvas id="pie" class="chart chart-pie"
+        chart-data="getData()" chart-labels="getLabels()">
+</canvas>
+<!--
+coisas do angular, ng-*, esperam receber uma expressão: f(), a+b==1
+{{variável no escopo}} -->
+
+
+<table class="table table-bordered timesheet" sticky>
+
     <thead>
         <tr>
-            <th colspan="2">
-                <a href="#" class="glyphicon glyphicon-pushpin pull-right" style="color: {{pinning ? '#337ab7' : '#777'}}" ng-click="togglePinning($event)"></a>
-            </th>
+            <th colspan="2"></th>
             <th colspan="{{resource.dates.length}}">
-                <a href="{{resource.$href('previous') | hateoasHref}}" class="glyphicon glyphicon-circle-arrow-left" ng-show="resource.$has('previous')"></a>
+                <hateoas-a resource="resource" rel="previous">
+                    <i class="glyphicon glyphicon-circle-arrow-left"></i>
+                </hateoas-a>
                 Date
-                <a href="{{resource.$href('next') | hateoasHref}}" class="glyphicon glyphicon-circle-arrow-right" ng-show="resource.$has('next')"></a>
+                <!---
+                <a href="{{resource.$href('next') | hateoasHref}}" ng-show="resource.$has('next')">
+                    <i class="glyphicon glyphicon-circle-arrow-right"></i>
+                </a>
+                --->
+                <hateoas-a resource="resource" rel="next">
+                    <i class="glyphicon glyphicon-circle-arrow-right"></i>
+                </hateoas-a>
+
                 <span class="pull-right">
-                    <a href="{{resource.$href('minus') | hateoasHref}}" class="glyphicon glyphicon-minus-sign" ng-show="resource.$has('minus')"></a>
-                    <a href="{{resource.$href('plus') | hateoasHref}}" class="glyphicon glyphicon-plus-sign" ng-show="resource.$has('plus')"></a>
+                    <hateoas-a resource="resource" rel="minus">
+                        <i class="glyphicon glyphicon-minus-sign"></i>
+                    </hateoas-a>
+                    <hateoas-a resource="resource" rel="plus">
+                        <i class="glyphicon glyphicon-plus-sign"></i>
+                    </hateoas-a>
+                        <!-- a href="{{resource.$href('minus') | hateoasHref}}" ng-show="resource.$has('minus')">
+                            <i class="glyphicon glyphicon-minus-sign"></i>
+                        </a>
+                    <a href="{{resource.$href('plus') | hateoasHref}}" ng-show="resource.$has('plus')">
+                        <i class="glyphicon glyphicon-plus-sign"></i>
+                    </a -->
                 </span>
             </th>
-        </tr>
+                    </tr>
         <tr>
             <th>
-                <search-box label="Project" model="projectNameSubstring" searching="filteringProjectRow"></search-box>
+                 <search-box on-search="handleSearch()" searching="pfiltro" label="Project" modelo="projectName"></search-box>
             </th>
             <th>
-                <search-box label="Task" model="taskNameSubstring" searching="filteringTaskRow"></search-box>
+                 <search-box searching="tfiltro" label="Task" modelo="taskName"></search-box>
             </th>
-            <th ng-repeat="date in resource.dates">
-                {{date | date: "shortDate": "+00:00"}}
-            </th>
+            <th ng-repeat="d in resource.dates"> {{d | date:"shortDate":"UTC" }} </th>
         </tr>
     </thead>
 </table>
 
 <table class="table table-bordered timesheet">
-    <tbody ng-repeat="projectRow in resource.projectRows | filter: filterProjectRow">
-        <tr ng-repeat="taskRow in projectRow.taskRows | filter: filterTaskRow(projectRow)">
-            <td rowspan="{{projectRow.taskRows.length}}" ng-show="$first">
-                {{projectRow.project}}
-                <a href="#"
-                   class="glyphicon glyphicon-pushpin pull-right"
-                   style="color: {{getProjectRowState(projectRow).visible ? '#337ab7' : '#777'}}; visibility: {{pinning ? 'visible' : 'hidden'}};"
-                   ng-click="toggleProjectRowVisibility($event, projectRow)"></a>
-            </td>
-            <td>
-                {{taskRow.task}}
-                <a href="#"
-                   class="glyphicon glyphicon-pushpin pull-right"
-                   style="color: {{getTaskRowState(projectRow, taskRow).visible ? '#337ab7' : '#777'}}; visibility: {{pinning ? 'visible' : 'hidden'}};"
-                   ng-click="toggleTaskRowVisibility($event, projectRow, taskRow)"></a>
-            </td>
-            <td ng-repeat="entryCell in taskRow.entryCells" style="position: relative">
-                <input type="text"
-                       ng-disabled="entryCell.disabled"
-                       ng-model="entryCell.newTime"
-                       ng-keydown="saveEntryCell($event, projectRow, taskRow, entryCell)"
-                       ng-focus="handleFocus(entryCell)"
-                       ng-blur="handleBlur(entryCell)"
-                       ui-number-mask="1"/>
-                <span class="timesheet-alert label label-{{entryCell.alert.type}}" 
-                      ng-hide="entryCell.alert.hidden">
-                    {{entryCell.alert.message}}
-                </span>
+    <tbody ng-repeat="projectRow in resource.projectRows | filter: filterProjectRow"> <!-- quem armazena projectRow no novo escopo é o ng-repeat (do angular, para você!) -->
+        <tr ng-repeat="taskRow in projectRow.taskRows | filter: filterTaskRow">
+            <td rowspan="{{projectRow.taskRows.length}}" ng-show="$first">{{projectRow.project}}</td>
+            <td>{{taskRow.task}}</td>
+            <td ng-repeat="entryCell in taskRow.entryCells">
+                 <input type="text" ng-model="entryCell.time" ui-number-mask="1" ng-keypress="saveEntry($event, projectRow, taskRow, entryCell)">
             </td>
         </tr>
     </tbody>
 </table>
-
-<div class="panel panel-default timesheet-chart">
-    <div class="panel-heading">
-        <a href="#" class="fa fa-pie-chart" ng-click="toggleChartVisibility($event)"></a>
-        Time per project
-    </div>
-    <div class="panel-body" ng-if="chart.visible">
-        <canvas class="chart chart-pie" chart-data="chart.data" chart-labels="chart.labels"></canvas>
-    </div>
-</div>

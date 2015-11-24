@@ -1,0 +1,32 @@
+<div ng-controller="rootController">
+    <nav class="navbar navbar-inverse navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#/">Timesheet</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+<!---
+                    <hateoas-a resource="resource" res="timesheet"></hateoas-a>
+--->
+                    <a href="" data-toggle="dropdown">
+                        Project <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+
+                        <li ng-show="resource.$has('')">
+                            <a href="{{resource.$href('') | hateoasHref}}">New</a>
+                        </li>
+                        <li ng-show="resource.$has('projectSearchForm')">
+                            <a href="{{resource.$href('projectSearchForm') | hateoasHref}}">Search</a>
+                        </li>
+                    </ul>
+
+                </li>
+                <li ng-show="resource.$has('timesheet')">
+                    <a href="{{resource.$href('timesheet') | hateoasHref}}">Timesheet</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>

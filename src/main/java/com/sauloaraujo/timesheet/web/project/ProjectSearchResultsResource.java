@@ -1,20 +1,12 @@
 package com.sauloaraujo.timesheet.web.project;
 
-import java.util.List;
-
-import com.sauloaraujo.timesheet.web.Resource;
-
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
-public class ProjectSearchResultsResource extends Resource {
-	@Setter
-	@Getter	
-	public static class Embedded {
-		private List<ProjectResource> projects;
-	}
-
-	private Embedded _embedded = new Embedded();	
+public class ProjectSearchResultsResource {
+    private List<ProjectResoure> projects;
 }

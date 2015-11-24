@@ -19,7 +19,7 @@ import ma.glasnost.orika.MapperFacade;
 @Repository
 public class ProjectRepositoryImpl extends QueryDslRepositorySupport implements ProjectRepositoryCustom {
 	private @Autowired MapperFacade mapperFacade;
-	
+
 	public ProjectRepositoryImpl() {
 		super(Project.class);
 	}
@@ -53,21 +53,21 @@ public class ProjectRepositoryImpl extends QueryDslRepositorySupport implements 
 */
 
 	private @PersistenceContext EntityManager manager;
-	
+
 	public Page<Project> findByOptions(ProjectSearchOptions options, Pageable pageable) {
 		StringBuilder jpql = new StringBuilder("from Project p where 1 = 1");
-		
+
 		if (StringUtils.hasLength(options.getName())) {
-			jpql.append(" and p.name like :name");
+			jpql.append(" and lower(p.name) like :name");
 		}
 		if (StringUtils.hasLength(options.getDescription())) {
-			jpql.append(" and p.name like :description");
+			jpql.append(" and lower(p.description) like :description");
 		}
 		if (options.getTasks() != null) {
 			jpql.append(" and exists (select t from Task t where t member of p.tasks and t.id in (:tasks))");
 		}
 
-		long total = createQuery("select count(*) " + jpql, Long.class, options, null).getSingleResult();		
+		long total = createQuery("select count(*) " + jpql, Long.class, options, null).getSingleResult();
 		List<Project> content = createQuery("select p " + jpql + " order by p.name", Project.class, options, pageable).getResultList();
 		return new PageImpl<Project>(content, pageable, total);
 	}
@@ -76,15 +76,15 @@ public class ProjectRepositoryImpl extends QueryDslRepositorySupport implements 
 		TypedQuery<Result> query = manager.createQuery(jpql, resultClass);
 
 		if (StringUtils.hasLength(options.getName())) {
-			query.setParameter("name", options.getName());
+			query.setParameter("name", "%" + options.getName().toLowerCase() + "%");
 		}
 		if (StringUtils.hasLength(options.getDescription())) {
-			query.setParameter("description", options.getDescription());
+			query.setParameter("description", "%" + options.getDescription().toLowerCase() + "%");
 		}
 		if (options.getTasks() != null) {
 			query.setParameter("tasks", mapperFacade.mapAsList(options.getTasks(), Integer.class));
 		}
-		
+
 		if (pageable != null) {
 			query.setFirstResult(pageable.getOffset());
 			query.setMaxResults(pageable.getPageSize());

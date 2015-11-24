@@ -1,223 +1,134 @@
-angular.module("timesheetModule").controller("timesheetController", ["$http", "$scope", "$timeout", "localStorageService", "resource", function ($http, $scope, $timeout, localStorageService, resource) {
-	$scope.saveEntryCell = function ($event, projectRow, taskRow, entryCell) {
-		if ($event.keyCode == 13) {
-			var time = typeof entryCell.newTime === 'number' ? entryCell.newTime : null
-			var data = {
-				projectRows: [{
-					id: projectRow.id,
-					taskRows: [{
-						id: taskRow.id,
-						entryCells: [{
-							column: entryCell.column,
-							time: time
-						}]
-					}]
-				}]
-			}
-//			resource.$patch("self", null, data)			
-			$http({
-				method: "PATCH",
-				url: resource.$href("self"),
-				data: data,
-				ignoreErrors: true
-			})
-			.then(function (response) {
-				entryCell.alert = {
-					type: "success",
-					message: "Saved"					
-				}								
-				$timeout(function() {
-					entryCell.alert.hidden = true					
-				})
-				entryCell.time = time
-				entryCell.newTime = time
-				$event.target.blur()
-				$scope.updateChart()
-			}).catch(function (response) {
-				entryCell.alert = {
-					type: "danger",
-					message: "Error"
-				}
-			})
-		}
-	}
+/** timesheetController
+ * Created by deinf.rcsilva on 19/11/2015.
+ */
 
-	$scope.togglePinning = function ($event) {
-		$event.preventDefault()
 
-		$scope.pinning = !$scope.pinning
-	}
+angular.module("timesheetModule").controller("timesheetController", function ($http, $location, $scope, apiClient, halClient, resource) { // usamos o resource, definido no resolve
+    var data = [300, 500, 200];
+    var labels = ["Download Sales", "In-Store Sales", "Mail-Order Sales"];
+    $scope.getLabels = function()
+    {
+        labels.length = 0;
+        _.each($scope.resource.projectRows, function(projectRow) {
+           labels.push(projectRow.project);
+            console.log(projectRow.project);
+        });
 
-	function getRowState(key) {
-		var state = localStorageService.get(key)
-		if (!state) {
-			state = {
-				visible: true
-			}
-			localStorageService.set(key, state)
-		}
-		return state
-	}
+        return labels;
+    }
 
-	function setRowState(key, state) {
-		localStorageService.set(key, state)
-	}
+    $scope.getData = function()
+    {
+        data.length = 0;
+        _.each($scope.resource.projectRows, function(projectRow) {
+            var total = 0;
+            _.each(projectRow.taskRows, function(taskRow){
+                _.each(taskRow.entryCells, function(entryCell){
+                    if(entryCell.time){
+                        total += entryCell.time
+                    }
+                })
+            })
+            data.push(total);
+            console.log(projectRow.project);
+        });
+        return data;
+    }
 
-	function toggleRowVisibility($event, key) {
-		$event.preventDefault()
+    $scope.$on("searchStarted", function(evento, carga) {
+        //evento.stopPropagation()
+        console.log(arguments);
+    })
+    $scope.$on("$routeUpdate", function() { // sempre que mudamos o valor de um parâmetro a função é chamada
+        // Callback [hell], Pyramid of doom, futures & promise
+        //var promessaRecurso = halClient.$get("/api" + $location.url())
+        var promessaRecurso = apiClient.$get($location.url());
+        promessaRecurso.then( function (resource) {
+            $scope.resource = resource;
+        })
 
-		var state = getRowState(key)
-		state.visible = !state.visible
-		setRowState(key, state)
-	}
+        // Paralelo: $q.all(halClient.$get(""), ..., halClient.$get(""))
+        //                .then(function(resources) {
+        //                })
+    }) // recebe dois parametros: nome do evento e uma função a chamar quando o evento acontecer
 
-	function getProjectRowKey(projectRow) {
-		return JSON.stringify(projectRow.id)
-	}
 
-	$scope.getProjectRowState = function (projectRow) {
-		return getRowState(getProjectRowKey(projectRow))
-	}
+    $scope.handleSearch = function() {
+        console.log("handleSearch called");
+    }
 
-	$scope.toggleProjectRowVisibility = function ($event, projectRow) {
-		toggleRowVisibility($event, getProjectRowKey(projectRow))
-	}
+    $scope.filterProjectRow = function(projectRow) {
+        if ($scope.pfiltro && $scope.projectName) {
+            //console.log("in")
+            //console.log(projectRow.project.toLowerCase())
+            return projectRow.project.toLowerCase().indexOf($scope.projectName.toLowerCase()) >= 0;
+        }
+        //console.log("out")
+        return true
+    }                                                                        // $http usado para enviar o patch e o location para saber para onde
+    $scope.filterTaskRow = function(taskRow) {
+        if ($scope.tfiltro && $scope.taskName) {
+            //console.log("in")
+            return taskRow.task.toLowerCase().indexOf($scope.taskName.toLowerCase()) >= 0;
+        }
+        //console.log("out")
+        return true
+    }
+    $scope.saveEntry = function($event, projectRow, taskRow, entryCell) {
+        if( $event.keyCode === 13 ) {
+            console.log("Blé :P");
+            var timesheet = {
+                projectRows: [{
+                    id:projectRow.id,
+                    taskRows: [{
+                        id: taskRow.id,
+                        entryCells: [{
+                            column: entryCell.column,
+                            time: entryCell.time
+                        }]
+                    }]
+                }]
+            }
+            /*
+             $http({
+             method: "PATCH",
+             url: $scope.resource._links.save.href,
+             data: timesheet
+             })
+             */
 
-	function getTaskRowKey(projectRow, taskRow) {
-		return JSON.stringify([projectRow.id, taskRow.id])
-	}
+            resource.$patch("save", null, timesheet);
 
-	$scope.getTaskRowState = function (projectRow, taskRow) {
-		return getRowState(getTaskRowKey(projectRow, taskRow))
-	}
+            console.log(timesheet);
+        }
+        console.log(arguments);
+    }
+    //$scope.resource = resource.data
+    $scope.resource = resource
 
-	$scope.toggleTaskRowVisibility = function ($event, projectRow, taskRow) {
-		toggleRowVisibility($event, getTaskRowKey(projectRow, taskRow))
-	}
 
-	$scope.filterProjectRow = function (projectRow) {
-		if ($scope.pinning || $scope.getProjectRowState(projectRow).visible) {
-			if ($scope.filteringProjectRow && $scope.projectNameSubstring) {
-				return projectRow.project.toLowerCase().indexOf($scope.projectNameSubstring.toLowerCase()) >= 0
-			} else {
-				return true
-			}
-		} else {
-			return false
-		}
-	}
+    var broker = Stomp.over(new SockJS("/stomp"));
 
-	$scope.filterTaskRow = function (projectRow) {
-		return function (taskRow) {
-			if ($scope.pinning || $scope.getTaskRowState(projectRow, taskRow).visible) {
-				if ($scope.filteringTaskRow && $scope.taskNameSubstring) {
-					return taskRow.task.toLowerCase().indexOf($scope.taskNameSubstring.toLowerCase()) >= 0
-				} else {
-					return true
-				}
-			} else {
-				return false
-			}
-		}
-	}
+    broker.debug = function (message) {
+        console.log('log:' + message); //se quiser inibir logs do stomp basta comentar aqui
+    }
 
-	$scope.toggleChartVisibility = function ($event) {
-		$event.preventDefault()
+    broker.connect({}, function(){
+       console.log('conectado...');
+        broker.subscribe("/topic/timesheet/patch", function(message){
+            var timesheet = JSON.parse(message.body);
+            console.log(timesheet);
+            console.log(message);
 
-		$scope.chart.visible = !$scope.chart.visible
-	}
 
-	$scope.updateChart = function () {
-		$scope.chart.labels = _.map(resource.projectRows, function (projectRow) {
-			return projectRow.project
-		})
+            $scope.$apply(function(){
+                $scope.resource.projectRows[0].taskRows[0].entryCells[0].time =
+                    timesheet.projectRows[0].taskRows[0].entryCells[0].time;
+            })
 
-		$scope.chart.data = []
-		_.forEach(resource.projectRows, function (projectRow) {
-			var time = 0
-			_.forEach(projectRow.taskRows, function (taskRow) {
-				_.forEach(taskRow.entryCells, function (entryCell) {
-					time += entryCell.time	
-				})
-			})
-			$scope.chart.data.push(time)
-		})
-	}
+        });
 
-	$scope.patchTimesheet = function (timesheet) {
-		_.each(timesheet.projectRows, function (projectRow) {
-			_.each(projectRow.taskRows, function (taskRow) {
-				_.each(taskRow.entryCells, function (entryCell) {
-					var date = moment.utc(timesheet.dates[0]).add(entryCell.column, "days").valueOf()
-					patchEntryCell(projectRow.id, taskRow.id, date, entryCell.time);
-				})
-			})
-		})
+    });
 
-		function patchEntryCell(projectRowId, taskRowId, date, time) {
-			_.each(resource.projectRows, function (projectRow) {
-				if (projectRow.id === projectRowId) {
-					_.each(projectRow.taskRows, function (taskRow) {
-						if (taskRow.id === taskRowId) {
-							_.each(resource.dates, function (d, index) {
-								if (d === date) {
-									var entryCell = taskRow.entryCells[index]; 
-									entryCell.time = time
-									entryCell.newTime = time
-									if (!entryCell.alert || entryCell.alert.message !== "Saved") {
-										entryCell.alert = {
-											type: "info",
-											message: "Updated"
-										}
-									}
-									$timeout(function() {
-										entryCell.alert.hidden = true					
-									})									
-									$scope.updateChart()
-								}
-							})
-						}
-					})
-				}
-			})
-		}
-	}
-	
-	$scope.handleBlur = function (entryCell) {
-		if (entryCell.newTime !== entryCell.time) {
-			entryCell.alert = {
-				type: "warning",
-				message: "Unsaved"
-			}
-		}
-	}
-	
-	_.each(resource.projectRows, function (projectRow) {
-		_.each(projectRow.taskRows, function (taskRow) {
-			_.each(taskRow.entryCells, function(entryCell) {
-				entryCell.newTime = entryCell.time
-			})
-		})
-	})
 
-	$scope.resource = resource
-
-	$scope.chart = {
-		visible: true
-	}
-	$scope.updateChart()
-
-	var broker = Stomp.over(new SockJS("/stomp"))
-	broker.debug = function (message) {
-//		console.log(message)
-	}
-
-	broker.connect({}, function () {
-		broker.subscribe("/topic/timesheet/patch", function (content) {
-//		broker.subscribe("/user/queue/timesheet/patch", function(content) {
-			$scope.$apply(function () {
-				$scope.patchTimesheet(JSON.parse(content.body));
-			})
-		})
-	})
-}])
+})

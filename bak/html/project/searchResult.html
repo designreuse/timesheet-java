@@ -1,0 +1,30 @@
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Start date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="project in projects">
+                <td class="col-sm-11">
+                    <a href="{{project.$href('form') | hateoasHref}}">{{project.name}}</a>
+                </td>
+                <td class="col-sm-1 text-center">
+                    {{project.startDate | date: "shortDate"}}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <nav class="text-center">
+            <ul class="pagination">
+                <li class="{{getLinkClass(rel)}}" ng-repeat="rel in rels">
+                    <a href="{{resource.$href(rel) | hateoasHref}}">{{rel}}</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

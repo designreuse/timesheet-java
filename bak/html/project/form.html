@@ -1,0 +1,74 @@
+<div class="row">
+    <div class="col-sm-12">
+        <form class="form-horizontal">
+<!--
+            <div ng-class="getFormGroupClass('name')">
+                <label class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" ng-model="project.name">
+                    <span class="help-block" ng-repeat="error in getErrors('name')">{{error.message}}</span>
+                </div>
+            </div>
+
+            <div ng-class="getFormGroupClass('description')">
+                <label class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" rows="5" ng-model="project.description"></textarea>
+                    <span class="help-block" ng-repeat="error in getErrors('description')">{{error.message}}</span>
+                </div>
+            </div>
+
+            <div ng-class="getFormGroupClass('startDate')">
+                <label class="col-sm-2 control-label">Start date</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" rows="5" ng-model="project.startDate" ui-date-mask/>
+                    <span class="help-block" ng-repeat="error in getErrors('startDate')">{{error.message}}</span>
+                </div>
+            </div>
+-->
+
+            <bootstrap-form-group label="Name" name="name">
+                <input type="text" class="form-control" ng-model="project.name">
+            </bootstrap-form-group>
+
+            <bootstrap-form-group label="Description" name="description">
+                <textarea class="form-control" rows="5" ng-model="project.description"></textarea>
+            </bootstrap-form-group>
+
+            <bootstrap-form-group label="Start date" name="startDate">
+                <input type="text" class="form-control" rows="5" ng-model="project.startDate" ui-date-mask/>
+            </bootstrap-form-group>
+            
+            <bootstrap-form-group label="End date" name="endDate">
+                <input type="text" class="form-control" rows="5" ng-model="project.endDate" ui-date-mask/>
+            </bootstrap-form-group>            
+
+            <div bootstrap-form-group-class="tasks">
+                <label class="col-sm-2 control-label">
+                    <search-box label="Tasks" model="taskNameSubstring" searching="filteringTasks"></search-box>
+                </label>
+                <div class="col-sm-10">
+                    <div class="panel panel-default checkboxes-panel">
+                        <div class="panel-body">
+                            <div class="checkbox" ng-repeat="task in tasks | filter: filterTasks">
+                                <label>
+                                    <input type="checkbox" ng-checked="hasTask(task)" ng-click="toggleTask(task)"> {{task.name}}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <bootstrap-form-group-errors name="tasks"></bootstrap-form-group-errors>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <div class="well">
+                        <button type="submit" class="btn btn-primary" ng-show="resource.$has('save')" ng-click="save()">Save</button>
+                        <button type="submit" class="btn btn-danger pull-right" ng-show="resource.$has('delete')" ng-click="delete()">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

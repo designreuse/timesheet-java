@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +26,9 @@ public class TimesheetService {
 	private @Autowired TaskRepository taskRepository;	
 	private @Autowired CalendarService calendarService;
 	private @Autowired DateService dateService;
-	private @Autowired ApplicationEventPublisher publisher;
-	
+    private @Autowired ApplicationEventPublisher applicationEventPublisher;
+
+
 	public Timesheet get(Date start, int days) {
 		List<Date> dates = new ArrayList<>();
 		Calendar calendar = calendarService.midnight(start);
@@ -111,12 +113,17 @@ public class TimesheetService {
 			}
 		}
 		entryRepository.save(entries);
- 
-		List<Date> dates = new ArrayList<>();
-		dates.add(start);		
-		timesheet.setDates(dates);
-		TimesheetPatchedEvent event = new TimesheetPatchedEvent(this);
-		event.setTimesheet(timesheet);
-		publisher.publishEvent(event);
+
+        TimesheetPatchedEvent evt = new TimesheetPatchedEvent(this);
+
+
+
+        List<Date> dates = new ArrayList<Date>();
+        dates.add(start);
+        timesheet.setDates(dates);
+
+        evt.setTimeseet(timesheet);
+
+        applicationEventPublisher.publishEvent(evt);
 	}
 }
